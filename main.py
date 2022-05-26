@@ -1,14 +1,14 @@
 import csv
 import os
+import sys
 from os import listdir
 from os.path import isfile, join
 
-def load_folder_csv_files(folder):
+def load_folder_csv_files(files):
     result_dictionary = {}
-    folder_files = [f for f in listdir(folder) if isfile(join(folder, f))]
-    for file in folder_files:
+    for file in files:
         result_dictionary[file] = []
-        with open(folder + '/' + file, mode='r') as infile:
+        with open('csv-files' + '/' + file, mode='r') as infile:
             for line in csv.DictReader(infile):
                 result_dictionary[file].append(line)
         
@@ -41,8 +41,16 @@ def replace_foreign_key_with_attribute(data, foreign_data, foreign_key, attribut
     return data
     
 def main():
-    csv_dictionaries = load_folder_csv_files('csv-files')
-    updated_dictionary = replace_foreign_key_with_attribute(csv_dictionaries['inmuebles_inmueble.csv'], csv_dictionaries['clientes_cliente.csv'], 'propietario_id', 'nombre')
+    if len(sys.argv) != 5:
+        print("Wrong arguments")
+        return
+    csv_name = sys.argv[1]
+    related_csv = sys.argv[2] 
+    csv_column = sys.argv[3] 
+    related_csv_column = sys.argv[4] 
+     
+    csv_dictionaries = load_folder_csv_files([csv_name, related_csv])
+    updated_dictionary = replace_foreign_key_with_attribute(csv_dictionaries[csv_name], csv_dictionaries[related_csv], csv_column, related_csv_column)
     generate_csv(updated_dictionary)
 
 if __name__ == "__main__":
